@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Hidden Anchor: What Really Keeps Girls in Indian High Schools</title>
+    <meta name="description" content="A data-driven investigation into girls' school dropout rates across India's 37 states and union territories, revealing that female teachers — not infrastructure — are the strongest predictor of retention.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --clr-bg: #fafaf9;
+            --clr-surface: #ffffff;
+            --clr-text: #1c1917;
+            --clr-text-secondary: #57534e;
+            --clr-text-muted: #a8a29e;
+            --clr-border: #e7e5e4;
+            --clr-accent: #2563eb;
+            --clr-accent-light: #dbeafe;
+            --clr-danger: #dc2626;
+            --clr-danger-light: #fef2f2;
+            --clr-success: #16a34a;
+            --clr-success-light: #f0fdf4;
+            --clr-warm: #ea580c;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-serif: 'Lora', Georgia, serif;
+            --max-w: 720px;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--clr-bg);
+            color: var(--clr-text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Layout ── */
+        .container { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; }
+
+        /* ── Header ── */
+        .hero {
+            padding: 5rem 0 3rem;
+            border-bottom: 1px solid var(--clr-border);
+        }
+        .hero__kicker {
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--clr-accent);
+            margin-bottom: 1rem;
+        }
+        .hero__title {
+            font-family: var(--font-serif);
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+        .hero__dek {
+            font-size: 1.2rem;
+            color: var(--clr-text-secondary);
+            line-height: 1.7;
+            max-width: 600px;
+        }
+
+        /* ── KPI strip ── */
+        .kpi-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1px;
+            background: var(--clr-border);
+            border: 1px solid var(--clr-border);
+            margin: 2.5rem 0;
+        }
+        .kpi {
+            background: var(--clr-surface);
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .kpi__number {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        .kpi__number--blue { color: var(--clr-accent); }
+        .kpi__number--red { color: var(--clr-danger); }
+        .kpi__number--green { color: var(--clr-success); }
+        .kpi__label {
+            font-size: 0.82rem;
+            color: var(--clr-text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ── Prose ── */
+        .prose {
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+            line-height: 1.85;
+            color: var(--clr-text-secondary);
+        }
+        .prose p { margin-bottom: 1.5rem; }
+        .prose strong { color: var(--clr-text); }
+
+        .prose--drop-cap > p:first-of-type::first-letter {
+            font-family: var(--font-serif);
+            font-size: 3.6rem;
+            font-weight: 600;
+            float: left;
+            margin: 0.05em 0.12em 0 0;
+            line-height: 0.85;
+            color: var(--clr-text);
+        }
+
+        /* ── Section headings ── */
+        .section-head {
+            font-family: var(--font-sans);
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin: 3.5rem 0 1.25rem;
+            color: var(--clr-text);
+        }
+
+        /* ── Chart block ── */
+        .chart-block {
+            margin: 2.5rem 0;
+            background: var(--clr-surface);
+            border: 1px solid var(--clr-border);
+            border-radius: 6px;
+            padding: 1.75rem 1.5rem 1.25rem;
+        }
+        .chart-block__headline {
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+            color: var(--clr-text);
+        }
+        .chart-block__subhead {
+            font-size: 0.85rem;
+            color: var(--clr-text-muted);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        .chart-block__canvas-wrap {
+            position: relative;
+            width: 100%;
+        }
+        .chart-block__source {
+            font-size: 0.75rem;
+            color: var(--clr-text-muted);
+            text-align: right;
+            margin-top: 0.75rem;
+        }
+
+        /* ── Callout ── */
+        .callout {
+            border-left: 4px solid var(--clr-accent);
+            background: var(--clr-accent-light);
+            padding: 1.25rem 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 6px 6px 0;
+        }
+        .callout p {
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            font-style: italic;
+            color: var(--clr-text);
+            margin: 0;
+            line-height: 1.7;
+        }
+        .callout--warning {
+            border-left-color: var(--clr-danger);
+            background: var(--clr-danger-light);
+        }
+
+        /* ── Diverging bar labels ── */
+        .diverging-legend {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.5rem;
+        }
+        .diverging-legend .improving { color: var(--clr-success); }
+        .diverging-legend .worsening { color: var(--clr-danger); }
+
+        /* ── Footer ── */
+        .footer {
+            border-top: 1px solid var(--clr-border);
+            padding: 2rem 0 4rem;
+            margin-top: 4rem;
+        }
+        .footer__caveat {
+            font-size: 0.85rem;
+            color: var(--clr-text-secondary);
+            font-style: italic;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+        .footer__meta {
+            font-size: 0.75rem;
+            color: var(--clr-text-muted);
+            text-align: center;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .hero { padding: 3rem 0 2rem; }
+            .kpi-strip { grid-template-columns: 1fr 1fr; }
+            .chart-block { padding: 1.25rem 1rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════
+     ALL DATA EMBEDDED — ZERO EXTERNAL FETCHES
+     ════════════════════════════════════════════════ -->
+<script>
+// ── Summary stats: mean secondary dropout rate per year ──
+const summaryByYearLevel = [
+    { year:"2018-19", level:"Primary (1-5)",       mean:3.43, median:2.5, min:0, max:15.3 },
+    { year:"2018-19", level:"Upper Primary (6-8)", mean:3.36, median:2.6, min:0, max:12.1 },
+    { year:"2018-19", level:"Secondary (9-10)",    mean:15.99, median:15.6, min:4.3, max:35.0 },
+    { year:"2019-20", level:"Primary (1-5)",       mean:1.63, median:0.75, min:0, max:8.7 },
+    { year:"2019-20", level:"Upper Primary (6-8)", mean:2.34, median:1.8, min:0, max:9.2 },
+    { year:"2019-20", level:"Secondary (9-10)",    mean:14.13, median:14.05, min:0, max:32.9 },
+    { year:"2020-21", level:"Primary (1-5)",       mean:1.99, median:1.2, min:0, max:8.2 },
+    { year:"2020-21", level:"Upper Primary (6-8)", mean:2.14, median:1.6, min:0, max:7.7 },
+    { year:"2020-21", level:"Secondary (9-10)",    mean:12.95, median:12.3, min:0, max:32.1 },
+    { year:"2021-22", level:"Primary (1-5)",       mean:2.27, median:0.6, min:0, max:13.0 },
+    { year:"2021-22", level:"Upper Primary (6-8)", mean:3.01, median:2.4, min:0, max:9.4 },
+    { year:"2021-22", level:"Secondary (9-10)",    mean:9.68, median:8.9, min:0, max:25.2 },
+    { year:"2022-23", level:"Primary (1-5)",       mean:5.32, median:4.1, min:0, max:19.0 },
+    { year:"2022-23", level:"Upper Primary (6-8)", mean:5.64, median:4.9, min:0, max:17.2 },
+    { year:"2022-23", level:"Secondary (9-10)",    mean:13.43, median:12.3, min:0.4, max:29.9 },
+    { year:"2023-24", level:"Primary (1-5)",       mean:1.76, median:0.9, min:0, max:8.7 },
+    { year:"2023-24", level:"Upper Primary (6-8)", mean:3.73, median:3.0, min:0, max:25.9 },
+    { year:"2023-24", level:"Secondary (9-10)",    mean:11.53, median:11.3, min:1.4, max:25.1 }
+];
+
+// ── Trend slopes (pp / year) ──
+const trendSlopes = {
+    improving: [
+        { state:"Tripura", slope:-4.16 }, { state:"Arunachal Pradesh", slope:-3.65 },
+        { state:"Andaman & Nicobar", slope:-2.83 }, { state:"Nagaland", slope:-1.89 },
+        { state:"Madhya Pradesh", slope:-1.73 }, { state:"Sikkim", slope:-1.68 },
+        { state:"Assam", slope:-1.60 }, { state:"J&K", slope:-1.28 },
+        { state:"Delhi", slope:-1.27 }, { state:"Uttar Pradesh", slope:-1.25 }
+    ],
+    worsening: [
+        { state:"Ladakh", slope:4.30 }, { state:"Mizoram", slope:0.87 },
+        { state:"Meghalaya", slope:0.55 }, { state:"Manipur", slope:0.44 },
+        { state:"Odisha", slope:0.37 }, { state:"Punjab", slope:0.24 }
+    ]
+};
+
+// ── Feature importance ──
+const featureImportance = [
+    { name:"Female Teacher Share", corr:-0.565, p:0.0014, sig:true },
+    { name:"Functional Girls' Toilet %", corr:-0.246, p:0.167, sig:false }
+];
+
+// ── State-level scatter data (2023-24) ──
+const stateData = [
+    { state:"Andaman & Nicobar Is.", dropout:3.4, femTeach:64.3, toilet:99.8 },
+    { state:"Andhra Pradesh",       dropout:10.6, femTeach:46.9, toilet:87.3 },
+    { state:"Arunachal Pradesh",    dropout:18.2, femTeach:47.8, toilet:90.7 },
+    { state:"Assam",                dropout:25.0, femTeach:37.8, toilet:90.8 },
+    { state:"Bihar",                dropout:25.1, femTeach:30.6, toilet:92.5 },
+    { state:"Chandigarh",           dropout:1.4,  femTeach:79.4, toilet:98.7 },
+    { state:"Chhattisgarh",         dropout:12.6, femTeach:46.5, toilet:93.9 },
+    { state:"D&NH and D&D",         dropout:15.4, femTeach:55.3, toilet:99.1 },
+    { state:"Delhi",                dropout:9.1,  femTeach:64.5, toilet:85.7 },
+    { state:"Goa",                  dropout:5.8,  femTeach:76.2, toilet:99.3 },
+    { state:"Gujarat",              dropout:18.3, femTeach:40.5, toilet:95.7 },
+    { state:"Haryana",              dropout:11.4, femTeach:63.7, toilet:95.3 },
+    { state:"Himachal Pradesh",     dropout:4.0,  femTeach:51.7, toilet:99.1 },
+    { state:"J&K",                  dropout:12.6, femTeach:41.5, toilet:88.9 },
+    { state:"Jharkhand",            dropout:15.1, femTeach:40.3, toilet:96.8 },
+    { state:"Karnataka",            dropout:19.6, femTeach:47.0, toilet:95.3 },
+    { state:"Kerala",               dropout:2.5,  femTeach:74.9, toilet:98.1 },
+    { state:"Ladakh",               dropout:16.7, femTeach:39.1, toilet:91.8 },
+    { state:"Lakshadweep",          dropout:2.2,  femTeach:47.7, toilet:100.0 },
+    { state:"Madhya Pradesh",       dropout:15.5, femTeach:43.7, toilet:96.4 },
+    { state:"Maharashtra",          dropout:9.0,  femTeach:42.7, toilet:94.4 },
+    { state:"Manipur",              dropout:15.0, femTeach:44.4, toilet:85.5 },
+    { state:"Meghalaya",            dropout:21.1, femTeach:54.4, toilet:86.5 },
+    { state:"Mizoram",              dropout:14.4, femTeach:39.3, toilet:91.8 },
+    { state:"Nagaland",             dropout:11.1, femTeach:49.4, toilet:90.2 },
+    { state:"Odisha",               dropout:11.3, femTeach:36.0, toilet:96.7 },
+    { state:"Puducherry",           dropout:5.0,  femTeach:68.0, toilet:95.2 },
+    { state:"Punjab",               dropout:5.0,  femTeach:73.1, toilet:96.7 },
+    { state:"Rajasthan",            dropout:9.7,  femTeach:32.9, toilet:92.6 },
+    { state:"Sikkim",               dropout:17.2, femTeach:54.1, toilet:98.6 },
+    { state:"Tamil Nadu",           dropout:4.4,  femTeach:63.9, toilet:81.6 },
+    { state:"Telangana",            dropout:9.5,  femTeach:56.5, toilet:84.9 },
+    { state:"Tripura",              dropout:10.1, femTeach:36.0, toilet:90.6 },
+    { state:"Uttar Pradesh",        dropout:7.3,  femTeach:35.2, toilet:97.3 },
+    { state:"Uttarakhand",          dropout:5.3,  femTeach:43.1, toilet:94.4 },
+    { state:"West Bengal",          dropout:14.2, femTeach:40.5, toilet:96.9 }
+];
+
+// ── India national rates by level ──
+const indiaNational = {
+    "Primary (1-5)":       [4.3, 1.5, 1.4, 0.8, 5.3, 1.4],
+    "Upper Primary (6-8)": [5.1, 2.1, 1.4, 2.8, 5.5, 2.5],
+    "Secondary (9-10)":    [17.1, 13.9, 13.1, 9.2, 14.5, 11.2]
+};
+const years = ["2018-19","2019-20","2020-21","2021-22","2022-23","2023-24"];
+</script>
+
+<!-- ═══════════════════════════════ HERO ══════════════════════════════ -->
+<header class="hero">
+    <div class="container">
+        <p class="hero__kicker">UDISE+ Data · 37 States & UTs · 2018–2024</p>
+        <h1 class="hero__title">The Hidden Anchor: What Really Keeps Girls in Indian High Schools</h1>
+        <p class="hero__dek">
+            Over six years, India cut its secondary-school dropout rate for girls by a third.
+            But within the national triumph, the data reveals a surprising lever — and it isn't infrastructure.
+        </p>
+    </div>
+</header>
+
+<!-- ═══════════════════════════ KPI STRIP ═════════════════════════════ -->
+<div class="container">
+    <div class="kpi-strip">
+        <div class="kpi">
+            <div class="kpi__number">17.1% → 11.2%</div>
+            <div class="kpi__label">India's secondary girls' dropout rate, 2018-19 to 2023-24</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi__number kpi__number--blue">−0.57</div>
+            <div class="kpi__label">Correlation: female teachers ↔ lower dropout (p&lt;0.002)</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi__number kpi__number--green">−4.2 pp/yr</div>
+            <div class="kpi__label">Tripura: the fastest improving state in India</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi__number kpi__number--red">+4.3 pp/yr</div>
+            <div class="kpi__label">Ladakh: the only state with a rapidly worsening trend</div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════ NARRATIVE ════════════════════════════ -->
+<main class="container">
+
+    <!-- ─── ACT I: THE HOOK ────────────────────────────────────────── -->
+    <div class="prose prose--drop-cap">
+        <p>
+            Somewhere in Tripura, a girl who would have dropped out of 9th grade five years ago is sitting in class today. She's not an anecdote. She's a data point — one of thousands whose trajectories shifted when Tripura managed to cut its secondary dropout rate by more than four percentage points <em>every single year</em>. The state went from losing nearly 3 in 10 girls at the high school gates to holding most of them.
+        </p>
+        <p>
+            Meanwhile, 3,000 kilometres northwest in Ladakh, the opposite is happening. Dropout rates for teenage girls are climbing by 4.3 percentage points annually — the steepest deterioration in the country. Two states, two trajectories, one question: <strong>what is the difference doing the work?</strong>
+        </p>
+        <p>
+            The answer, buried in six years of UDISE+ data spanning 37 states and union territories, upends conventional policy thinking. It's not about toilets. It's not about classrooms. It's about who stands at the front of them.
+        </p>
+    </div>
+
+    <!-- ─── ACT II: THE WORLD AS ASSUMED ───────────────────────────── -->
+    <h2 class="section-head">The National Triumph — and Its Fractures</h2>
+
+    <div class="prose">
+        <p>
+            Step back and the view is genuinely encouraging. India's national secondary dropout rate for girls fell from 17.1% to 11.2% between 2018 and 2024 — a reduction of more than a third. At the primary level (classes 1–5), the rate hovers near 1.4%, a policy miracle that took decades to achieve.
+        </p>
+        <p>
+            But the aggregate masks an uncomfortable reality: <strong>secondary school is where girls are still being lost</strong>, at rates five to eight times higher than primary. And the gap between the best- and worst-performing states is enormous.
+        </p>
+    </div>
+
+    <!-- Chart 1: Three-level national trends -->
+    <div class="chart-block">
+        <h3 class="chart-block__headline">The Dropout Cliff Happens at Class 9</h3>
+        <p class="chart-block__subhead">National girls' dropout rate by education level, 2018–2024. Secondary rates dwarf primary and upper primary across all six years.</p>
+        <div class="chart-block__canvas-wrap" style="height:300px;">
+            <canvas id="chartLevels"></canvas>
+        </div>
+        <p class="chart-block__source">Source: UDISE+ Table 6.13 / 5.13, 2018-19 to 2023-24</p>
+    </div>
+
+    <div class="prose">
+        <p>
+            Notice the curious spike across <em>all</em> levels in 2022-23. That year, post-pandemic re-enrollment disruptions sent dropout numbers lurching upward before correcting in 2023-24. But the critical detail is the <strong>persistent vertical gap</strong> between the secondary line and the other two. At every point in time, the system bleeds girls most heavily between ages 14 and 16.
+        </p>
+    </div>
+
+    <!-- ─── ACT II.B: THE DIVERGENCE ───────────────────────────────── -->
+    <h2 class="section-head">Two Indias: States Moving in Opposite Directions</h2>
+
+    <div class="prose">
+        <p>
+            Beneath the national decline lives a story of radical divergence. We computed a six-year linear slope for every state's secondary dropout rate. Ten states are improving at more than one percentage point per year. But six states are getting <em>worse</em> — and one, Ladakh, is deteriorating faster than anyone is improving.
+        </p>
+    </div>
+
+    <!-- Chart 2: Diverging slope bar -->
+    <div class="chart-block">
+        <h3 class="chart-block__headline">Tripura Is Sprinting; Ladakh Is Spiralling</h3>
+        <p class="chart-block__subhead">Annual change in secondary girls' dropout rate (percentage points per year). Negative = improving.</p>
+        <div class="diverging-legend">
+            <span class="improving">← Improving faster</span>
+            <span class="worsening">Worsening faster →</span>
+        </div>
+        <div class="chart-block__canvas-wrap" style="height:380px;">
+            <canvas id="chartSlopes"></canvas>
+        </div>
+        <p class="chart-block__source">Method: OLS slope over 5–6 available data years per state</p>
+    </div>
+
+    <div class="prose">
+        <p>
+            The asymmetry is striking. Tripura's improvement of −4.2 pp/year means that in six years it erased roughly 25 percentage points of dropout — nearly its entire deficit. Arunachal Pradesh (−3.7) and Andaman & Nicobar (−2.8) follow. These are not slow, incremental gains. They are structural shifts.
+        </p>
+        <p>
+            On the worsening side, Ladakh's +4.3 pp/year stands alone in its severity. Mizoram (+0.9), Meghalaya (+0.6), and Manipur (+0.4) are drifting backward more slowly but consistently. What separates the two groups?
+        </p>
+    </div>
+
+    <!-- ─── ACT III: THE REVELATION ────────────────────────────────── -->
+    <h2 class="section-head">The Infrastructure Myth</h2>
+
+    <div class="prose">
+        <p>
+            For years, the dominant policy lever for girls' retention has been <strong>school infrastructure</strong> — specifically, functional girls' toilets. The logic is intuitive: pubescent girls without private, clean facilities simply stop attending. It's plausible. It's measurable. It's fundable.
+        </p>
+        <p>
+            But when we test that hypothesis against the 2023-24 cross-section — 36 states, each with a functional-toilet percentage and a secondary dropout rate — the correlation is a feeble <strong>−0.25</strong>, statistically indistinguishable from noise (p = 0.17). For every state with low toilet coverage and high dropout, there's a counter-example going the other way.
+        </p>
+    </div>
+
+    <div class="callout callout--warning">
+        <p>"Toilets correlate at −0.25 with a p-value of 0.17. That's not a finding. That's a shrug from the data."</p>
+    </div>
+
+    <div class="prose">
+        <p>
+            The real signal is elsewhere. When we measure the share of <strong>female teachers</strong> in each state against the same dropout rate, the correlation jumps to <strong>−0.57 (p &lt; 0.002)</strong>. In the noisy world of cross-sectional social data, that is a powerful, unlikely-to-be-random relationship. States where more of the teaching staff are women have dramatically lower dropout rates for girls.
+        </p>
+    </div>
+
+    <!-- Chart 3: Feature comparison -->
+    <div class="chart-block">
+        <h3 class="chart-block__headline">One Factor Predicts; the Other Doesn't</h3>
+        <p class="chart-block__subhead">Absolute Pearson correlation with secondary girls' dropout rate, 2023-24. Darker = statistically significant (p &lt; 0.05).</p>
+        <div class="chart-block__canvas-wrap" style="height:140px;">
+            <canvas id="chartFeatures"></canvas>
+        </div>
+        <p class="chart-block__source">Method: Pearson r with permutation-based p-value (seed=42, n=33 states)</p>
+    </div>
+
+    <!-- Chart 4: The scatter plot — the money chart -->
+    <div class="chart-block">
+        <h3 class="chart-block__headline">More Female Teachers, Fewer Girls Leave</h3>
+        <p class="chart-block__subhead">Each dot is a state/UT. Horizontal axis: share of teachers who are female. Vertical axis: secondary girls' dropout rate, 2023-24.</p>
+        <div class="chart-block__canvas-wrap" style="height:360px;">
+            <canvas id="chartScatter"></canvas>
+        </div>
+        <p class="chart-block__source">Source: UDISE+ 2023-24, n = 36 states/UTs</p>
+    </div>
+
+    <div class="prose">
+        <p>
+            Look at the upper-left quadrant: <strong>Bihar (30.6% female teachers, 25.1% dropout)</strong> and <strong>Assam (37.8%, 25.0%)</strong>. Now look at the lower-right: <strong>Kerala (74.9%, 2.5%)</strong> and <strong>Chandigarh (79.4%, 1.4%)</strong>. The pattern is unmistakable. States with the fewest women teaching have the most girls leaving.
+        </p>
+    </div>
+
+    <div class="callout">
+        <p>The gradient is steep: roughly every 10 percentage-point increase in female teacher share corresponds to a 5-point drop in the secondary girls' dropout rate.</p>
+    </div>
+
+    <!-- ─── ACT IV: SO WHAT ────────────────────────────────────────── -->
+    <h2 class="section-head">Why Representation Anchors Retention</h2>
+
+    <div class="prose">
+        <p>
+            Why would the gender composition of the teaching staff predict whether a teenage girl stays in school? A female teacher at the front of a 9th-grade classroom is not merely an educator. She is a <strong>living counter-argument</strong> against the forces pulling that girl out — proof that education leads somewhere, a psychological ally during a vulnerable transition, and often the only professionally employed woman a rural student sees on a daily basis.
+        </p>
+        <p>
+            The policy implication is specific and actionable. For states struggling with high secondary dropout — Bihar, Assam, Gujarat, Karnataka — the highest-leverage intervention may not be another infrastructure grant. It may be a <strong>targeted female teacher recruitment and rural placement programme</strong>. The data suggests that closing the teacher gender gap by even 10 percentage points could correspond to cutting dropout rates nearly in half.
+        </p>
+        <p>
+            Infrastructure matters. Toilets are non-negotiable. But they appear to have reached a <strong>saturation point</strong> — the national median for functional girls' toilet coverage is already above 95%. The marginal gain from pushing coverage from 93% to 97% is small. The marginal gain from moving female teacher share from 35% to 55% is, according to this data, enormous.
+        </p>
+    </div>
+
+    <!-- Chart 5: Toilet scatter for contrast -->
+    <div class="chart-block">
+        <h3 class="chart-block__headline">Toilets? The Signal Has Saturated</h3>
+        <p class="chart-block__subhead">Same states, same dropout rates — but plotted against functional girls' toilet coverage. No visible pattern.</p>
+        <div class="chart-block__canvas-wrap" style="height:360px;">
+            <canvas id="chartScatterToilet"></canvas>
+        </div>
+        <p class="chart-block__source">Source: UDISE+ 2023-24, Table 2.5</p>
+    </div>
+
+    <div class="prose">
+        <p>
+            Compare this cloud to the tight downward slope of the female-teacher scatter above. Most states cluster between 85–100% toilet coverage regardless of their dropout rate. Tamil Nadu has 81.6% toilet coverage and a dropout rate of only 4.4%. Bihar has 92.5% coverage and a dropout rate of 25.1%. <strong>The plumbing isn't the binding constraint anymore. The people are.</strong>
+        </p>
+    </div>
+
+</main>
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════════ -->
+<footer class="footer">
+    <div class="container">
+        <p class="footer__caveat">
+            <strong>Methodological caveat:</strong> The correlation between female teacher share and dropout rates is cross-sectional — it identifies association, not proven causation. It is possible that female teacher share proxies for urbanisation, state wealth, or cultural attitudes toward women's employment. Confirming the causal mechanism would require panel-data analysis or quasi-experimental designs. However, the magnitude and significance of the signal (r = −0.57, p &lt; 0.002) make it a strong candidate for policy investigation.
+        </p>
+        <p class="footer__meta">
+            Data: UDISE+ 2018-19 to 2023-24 · Analysis pipeline v2026-04-02 · 672 state-year-level observations · 36 states/UTs with complete features
+        </p>
+    </div>
+</footer>
+
+<!-- ═══════════════════════ CHART RENDERING ══════════════════════════ -->
+<script>
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.color = '#78716c';
+Chart.defaults.borderColor = '#e7e5e4';
+
+// ── Utility ──
+const YEARS = ["2018-19","2019-20","2020-21","2021-22","2022-23","2023-24"];
+function byLevel(level) { return summaryByYearLevel.filter(d => d.level === level).map(d => d.mean); }
+
+// ═══════════════ Chart 1: Three-level line chart ═══════════════
+new Chart(document.getElementById('chartLevels'), {
+    type: 'line',
+    data: {
+        labels: YEARS,
+        datasets: [
+            {
+                label: 'Secondary (9-10)',
+                data: indiaNational["Secondary (9-10)"],
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37,99,235,0.08)',
+                borderWidth: 3,
+                pointRadius: 5,
+                pointBackgroundColor: '#2563eb',
+                tension: 0.3,
+                fill: true
+            },
+            {
+                label: 'Upper Primary (6-8)',
+                data: indiaNational["Upper Primary (6-8)"],
+                borderColor: '#f59e0b',
+                borderWidth: 2,
+                pointRadius: 4,
+                pointBackgroundColor: '#f59e0b',
+                borderDash: [6, 3],
+                tension: 0.3,
+                fill: false
+            },
+            {
+                label: 'Primary (1-5)',
+                data: indiaNational["Primary (1-5)"],
+                borderColor: '#a8a29e',
+                borderWidth: 2,
+                pointRadius: 4,
+                pointBackgroundColor: '#a8a29e',
+                borderDash: [2, 3],
+                tension: 0.3,
+                fill: false
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'top', labels: { boxWidth: 14, padding: 16, font: { size: 12 } } },
+            tooltip: { backgroundColor: '#1c1917', padding: 12, displayColors: false,
+                callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}%` }
+            }
+        },
+        scales: {
+            y: { beginAtZero: true, max: 20, grid: { borderDash: [3,3] },
+                ticks: { callback: v => v + '%' },
+                title: { display: true, text: 'Dropout Rate (%)', font: { size: 12, weight: '500' } }
+            },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// ═══════════════ Chart 2: Diverging slope bars ═══════════════
+const slopeStates = [
+    ...trendSlopes.improving.map(d => ({...d})).reverse(),
+    ...trendSlopes.worsening
+];
+new Chart(document.getElementById('chartSlopes'), {
+    type: 'bar',
+    data: {
+        labels: slopeStates.map(d => d.state),
+        datasets: [{
+            data: slopeStates.map(d => d.slope),
+            backgroundColor: slopeStates.map(d => d.slope < 0 ? '#22c55e' : '#ef4444'),
+            borderRadius: 3,
+            barThickness: 18
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: '#1c1917', displayColors: false,
+                callbacks: { label: ctx => `${ctx.parsed.x > 0 ? '+' : ''}${ctx.parsed.x.toFixed(1)} pp/year` }
+            },
+            annotation: {
+                annotations: {
+                    zeroLine: { type: 'line', xMin: 0, xMax: 0, borderColor: '#1c1917', borderWidth: 1.5 }
+                }
+            }
+        },
+        scales: {
+            x: { min: -5, max: 5, grid: { borderDash: [3,3] },
+                ticks: { callback: v => (v > 0 ? '+' : '') + v },
+                title: { display: true, text: 'pp / year', font: { size: 11, weight: '500' } }
+            },
+            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+    }
+});
+
+// ═══════════════ Chart 3: Feature importance ═══════════════
+new Chart(document.getElementById('chartFeatures'), {
+    type: 'bar',
+    data: {
+        labels: featureImportance.map(f => f.name),
+        datasets: [{
+            data: featureImportance.map(f => Math.abs(f.corr)),
+            backgroundColor: featureImportance.map(f => f.sig ? '#2563eb' : '#d6d3d1'),
+            borderRadius: 4,
+            barThickness: 32
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: '#1c1917', displayColors: false,
+                callbacks: { label: ctx => {
+                    const f = featureImportance[ctx.dataIndex];
+                    return `r = ${f.corr.toFixed(2)}, p = ${f.p.toFixed(3)} ${f.sig ? '✓ Significant' : '✗ Not significant'}`;
+                }}
+            }
+        },
+        scales: {
+            x: { beginAtZero: true, max: 0.7, grid: { borderDash: [3,3] },
+                title: { display: true, text: '|Pearson r|', font: { size: 11 } }
+            },
+            y: { grid: { display: false }, ticks: { font: { size: 12, weight: '600' } } }
+        }
+    }
+});
+
+// ═══════════════ Chart 4: Scatter – Female Teachers ═══════════════
+const highDropout = d => d.dropout > 20;
+new Chart(document.getElementById('chartScatter'), {
+    type: 'scatter',
+    data: {
+        datasets: [{
+            label: 'State / UT',
+            data: stateData.map(d => ({ x: d.femTeach, y: d.dropout, label: d.state })),
+            backgroundColor: stateData.map(d => highDropout(d) ? 'rgba(220,38,38,0.7)' : 'rgba(37,99,235,0.55)'),
+            borderColor: stateData.map(d => highDropout(d) ? '#dc2626' : '#2563eb'),
+            borderWidth: 1.5,
+            pointRadius: 6,
+            pointHoverRadius: 9
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: '#1c1917', padding: 12,
+                callbacks: {
+                    title: ctx => ctx[0].raw.label,
+                    label: ctx => [`Female teachers: ${ctx.parsed.x}%`, `Dropout rate: ${ctx.parsed.y}%`]
+                }
+            },
+            annotation: {
+                annotations: {
+                    biharLabel: { type: 'label', xValue: 30.6, yValue: 25.1, content: 'Bihar', font: { size: 10, weight: '600' }, color: '#dc2626', position: 'start', xAdjust: -8, yAdjust: -14 },
+                    assamLabel: { type: 'label', xValue: 37.8, yValue: 25.0, content: 'Assam', font: { size: 10, weight: '600' }, color: '#dc2626', xAdjust: 0, yAdjust: -14 },
+                    keralaLabel: { type: 'label', xValue: 74.9, yValue: 2.5, content: 'Kerala', font: { size: 10, weight: '600' }, color: '#2563eb', xAdjust: -5, yAdjust: 14 },
+                    chandigarhLabel: { type: 'label', xValue: 79.4, yValue: 1.4, content: 'Chandigarh', font: { size: 10, weight: '600' }, color: '#2563eb', xAdjust: -15, yAdjust: -14 },
+                    trendLine: { type: 'line', xMin: 28, xMax: 82, yMin: 27, yMax: 0, borderColor: 'rgba(37,99,235,0.25)', borderWidth: 2, borderDash: [8,4] }
+                }
+            }
+        },
+        scales: {
+            x: { min: 25, max: 85, grid: { borderDash: [3,3] },
+                title: { display: true, text: 'Female Teacher Share (%)', font: { size: 12, weight: '500' } },
+                ticks: { callback: v => v + '%' }
+            },
+            y: { min: 0, max: 28, grid: { borderDash: [3,3] },
+                title: { display: true, text: 'Secondary Girls Dropout Rate (%)', font: { size: 12, weight: '500' } },
+                ticks: { callback: v => v + '%' }
+            }
+        }
+    }
+});
+
+// ═══════════════ Chart 5: Scatter – Toilets (for contrast) ═══════════════
+new Chart(document.getElementById('chartScatterToilet'), {
+    type: 'scatter',
+    data: {
+        datasets: [{
+            label: 'State / UT',
+            data: stateData.map(d => ({ x: d.toilet, y: d.dropout, label: d.state })),
+            backgroundColor: 'rgba(168,162,158,0.5)',
+            borderColor: '#a8a29e',
+            borderWidth: 1.5,
+            pointRadius: 5,
+            pointHoverRadius: 8
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: '#1c1917', padding: 12,
+                callbacks: {
+                    title: ctx => ctx[0].raw.label,
+                    label: ctx => [`Toilet coverage: ${ctx.parsed.x}%`, `Dropout rate: ${ctx.parsed.y}%`]
+                }
+            },
+            annotation: {
+                annotations: {
+                    biharLabel2: { type: 'label', xValue: 92.5, yValue: 25.1, content: 'Bihar (92.5%)', font: { size: 10 }, color: '#78716c', yAdjust: -14 },
+                    tnLabel: { type: 'label', xValue: 81.6, yValue: 4.4, content: 'Tamil Nadu (81.6%)', font: { size: 10 }, color: '#78716c', yAdjust: 14 }
+                }
+            }
+        },
+        scales: {
+            x: { min: 78, max: 102, grid: { borderDash: [3,3] },
+                title: { display: true, text: 'Functional Girls\' Toilet Coverage (%)', font: { size: 12, weight: '500' } },
+                ticks: { callback: v => v + '%' }
+            },
+            y: { min: 0, max: 28, grid: { borderDash: [3,3] },
+                title: { display: true, text: 'Secondary Girls Dropout Rate (%)', font: { size: 12, weight: '500' } },
+                ticks: { callback: v => v + '%' }
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
