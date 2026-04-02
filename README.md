@@ -1,7 +1,3 @@
-# new_repo — reproducible analysis pipeline (no data committed)
-
-This folder contains a deterministic, script-driven pipeline that produces **machine-consumable** analytical outputs.
-
 ## Run
 
 ```bash
